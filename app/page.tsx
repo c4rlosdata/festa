@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar, Clock, MapPin, PartyPopper, User, Pizza } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,29 @@ export default function BirthdayRSVP() {
   const [companion, setCompanion] = useState("alone");
   const [pizza, setPizza] = useState("");
   const [isConfirmed, setIsConfirmed] = useState(false);
+  const [timeLeft, setTimeLeft] = useState("");
+
+  const eventDate = new Date("2025-02-01T19:00:00");
+
+  const calculateTimeLeft = () => {
+    const now = new Date();
+    const difference = eventDate.getTime() - now.getTime();
+
+    if (difference > 0) {
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((difference / (1000 * 60)) % 60);
+      const seconds = Math.floor((difference / 1000) % 60);
+      setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+    } else {
+      setTimeLeft("O evento já começou! 🎉");
+    }
+  };
+
+  useEffect(() => {
+    const timer = setInterval(() => calculateTimeLeft(), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleConfirm = async () => {
     if (!name || !pizza) {
@@ -20,22 +43,15 @@ export default function BirthdayRSVP() {
     }
 
     try {
-      const response = await fetch("/api/rsvp", {
+      await fetch("/api/rsvp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, companion, pizza }),
       });
 
-      if (!response.ok) {
-        throw new Error("Erro ao enviar RSVP.");
-      }
-
-      const result = await response.json();
-      alert(result.message);
       setIsConfirmed(true);
     } catch (error) {
-      console.error(error);
-      alert("Ocorreu um erro ao enviar sua resposta.");
+      console.error("Erro ao enviar RSVP:", error);
     }
   };
 
@@ -45,9 +61,9 @@ export default function BirthdayRSVP() {
         <CardHeader className="text-center space-y-2">
           <CardTitle className="text-3xl md:text-4xl font-bold flex items-center justify-center gap-2 text-[#809DEA]">
             <PartyPopper className="w-8 h-8 text-[#809DEA]" />
-            Meu Aniversário!
+            Niver Carlos!
           </CardTitle>
-          <p className="text-gray-300">Venha celebrar comigo!</p>
+          <p className="text-gray-300">Venha celebrar comigo amassando umas pizzas!</p>
         </CardHeader>
         <CardContent className="p-6 pt-0 space-y-6">
           <div className="space-y-4">
@@ -83,7 +99,6 @@ export default function BirthdayRSVP() {
           <div className="h-px bg-gray-700" />
 
           <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-            {/* Input para o nome */}
             <div className="space-y-2">
               <label htmlFor="name" className="text-sm font-medium text-gray-100">
                 Seu nome
@@ -100,7 +115,6 @@ export default function BirthdayRSVP() {
               </div>
             </div>
 
-            {/* Seleção de acompanhante */}
             <div className="space-y-2">
               <label htmlFor="companion" className="text-sm font-medium text-gray-100">
                 Acompanhante
@@ -127,7 +141,6 @@ export default function BirthdayRSVP() {
               </div>
             </div>
 
-            {/* Input para sabor de pizza */}
             <div className="space-y-2">
               <label htmlFor="pizza" className="text-sm font-medium text-gray-100">
                 Sabor de pizza preferido
@@ -136,7 +149,7 @@ export default function BirthdayRSVP() {
                 <Pizza className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <Input
                   id="pizza"
-                  placeholder="Digite o sabor de pizza preferido"
+                  placeholder="Digite aqui"
                   value={pizza}
                   onChange={(e) => setPizza(e.target.value)}
                   className="pl-10 h-12 border-gray-700 focus:border-[#809DEA] focus:ring-[#809DEA] text-gray-100 bg-gray-700 placeholder-gray-400 rounded-lg"
@@ -144,16 +157,27 @@ export default function BirthdayRSVP() {
               </div>
             </div>
 
-            {/* Botão */}
             <Button
               className="w-full bg-[#809DEA] hover:bg-[#809DEA]/90 text-white font-semibold rounded-lg"
               onClick={handleConfirm}
             >
               {isConfirmed ? "Confirmado! 🎉" : "Confirmar Presença!"}
             </Button>
+
+            {/* Timer */}
+            {isConfirmed && (
+              <p className="text-center text-lg font-semibold text-[#809DEA] mt-4">
+                Tempo restante: {timeLeft}
+              </p>
+            )}
           </form>
         </CardContent>
       </Card>
+
+      {/* Footer */}
+      <footer className="text-sm text-gray-500 mt-4">
+        © 2025 Nexus
+      </footer>
     </div>
   );
 }
