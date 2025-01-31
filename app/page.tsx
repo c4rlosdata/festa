@@ -1,101 +1,159 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+import { Calendar, Clock, MapPin, PartyPopper, User, Pizza } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectItem } from "@/components/ui/select";
+
+export default function BirthdayRSVP() {
+  const [name, setName] = useState("");
+  const [companion, setCompanion] = useState("alone");
+  const [pizza, setPizza] = useState("");
+  const [isConfirmed, setIsConfirmed] = useState(false);
+
+  const handleConfirm = async () => {
+    if (!name || !pizza) {
+      alert("Por favor, preencha seu nome e o sabor de pizza preferido.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/rsvp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, companion, pizza }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao enviar RSVP.");
+      }
+
+      const result = await response.json();
+      alert(result.message);
+      setIsConfirmed(true);
+    } catch (error) {
+      console.error(error);
+      alert("Ocorreu um erro ao enviar sua resposta.");
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="min-h-screen bg-[#1918F] text-gray-100 p-4 flex flex-col items-center justify-between">
+      <Card className="w-full max-w-md shadow-lg border border-gray-700 bg-gray-800 rounded-xl">
+        <CardHeader className="text-center space-y-2">
+          <CardTitle className="text-3xl md:text-4xl font-bold flex items-center justify-center gap-2 text-[#809DEA]">
+            <PartyPopper className="w-8 h-8 text-[#809DEA]" />
+            Meu Aniversário!
+          </CardTitle>
+          <p className="text-gray-300">Venha celebrar comigo!</p>
+        </CardHeader>
+        <CardContent className="p-6 pt-0 space-y-6">
+          <div className="space-y-4">
+            <div className="flex items-start gap-3">
+              <MapPin className="w-5 h-5 text-[#809DEA] mt-1" />
+              <div>
+                <h3 className="font-semibold text-gray-100">Local</h3>
+                <p className="text-sm text-gray-300">
+                  Avenida jornalista Ricardo marinho, 150
+                  <br />
+                  Barra da Tijuca
+                </p>
+              </div>
+            </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+            <div className="flex items-start gap-3">
+              <Calendar className="w-5 h-5 text-[#809DEA] mt-1" />
+              <div>
+                <h3 className="font-semibold text-gray-100">Data</h3>
+                <p className="text-sm text-gray-300">01 de fevereiro de 2025</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <Clock className="w-5 h-5 text-[#809DEA] mt-1" />
+              <div>
+                <h3 className="font-semibold text-gray-100">Horário</h3>
+                <p className="text-sm text-gray-300">19:00 às 00:00</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="h-px bg-gray-700" />
+
+          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+            {/* Input para o nome */}
+            <div className="space-y-2">
+              <label htmlFor="name" className="text-sm font-medium text-gray-100">
+                Seu nome
+              </label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Input
+                  id="name"
+                  placeholder="Digite seu nome"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="pl-10 border-gray-700 focus:border-[#809DEA] focus:ring-[#809DEA] text-gray-100 bg-gray-700 placeholder-gray-400 rounded-lg"
+                />
+              </div>
+            </div>
+
+            {/* Seleção de acompanhante */}
+            <div className="space-y-2">
+              <label htmlFor="companion" className="text-sm font-medium text-gray-100">
+                Acompanhante
+              </label>
+              <div className="relative">
+                <Select
+                  value={companion}
+                  onValueChange={setCompanion}
+                  className="text-gray-100 bg-gray-700 border border-gray-700 rounded-lg shadow-sm focus:border-[#809DEA] focus:ring-[#809DEA] hover:border-[#809DEA]"
+                >
+                  <SelectItem
+                    value="alone"
+                    className="px-4 py-2 hover:bg-[#809DEA] hover:text-gray-100"
+                  >
+                    Vou sozinho(a)
+                  </SelectItem>
+                  <SelectItem
+                    value="plus-one"
+                    className="px-4 py-2 hover:bg-[#809DEA] hover:text-gray-100"
+                  >
+                    Vou com acompanhante
+                  </SelectItem>
+                </Select>
+              </div>
+            </div>
+
+            {/* Input para sabor de pizza */}
+            <div className="space-y-2">
+              <label htmlFor="pizza" className="text-sm font-medium text-gray-100">
+                Sabor de pizza preferido
+              </label>
+              <div className="relative">
+                <Pizza className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Input
+                  id="pizza"
+                  placeholder="Digite o sabor de pizza preferido"
+                  value={pizza}
+                  onChange={(e) => setPizza(e.target.value)}
+                  className="pl-10 h-12 border-gray-700 focus:border-[#809DEA] focus:ring-[#809DEA] text-gray-100 bg-gray-700 placeholder-gray-400 rounded-lg"
+                />
+              </div>
+            </div>
+
+            {/* Botão */}
+            <Button
+              className="w-full bg-[#809DEA] hover:bg-[#809DEA]/90 text-white font-semibold rounded-lg"
+              onClick={handleConfirm}
+            >
+              {isConfirmed ? "Confirmado! 🎉" : "Confirmar Presença!"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }
